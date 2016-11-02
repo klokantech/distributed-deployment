@@ -1,26 +1,27 @@
-pgdata:
-  image: "tianon/true"
+postgres:
+  image: "openmaptiles/postgis:2.2"
   volumes:
    - {{local_db_dir}}:/var/lib/postgresql/data/
-postgis:
-  image: "osm2vectortiles/postgis:v3"
-  volumes_from:
-   - pgdata
   ports:
-   - "5432"
-export-worker:
-  image: "osm2vectortiles/export"
-  command: ./export-worker.sh
+   - "5432:5432"
+generate-vectortiles-worker:
+  image: "openmaptiles/generate-vectortiles-worker"
   restart: always
   volumes:
-   - ./osm2vectortiles.tm2source:/data/tm2source
+   - ./:/tm2source
   links:
-   - postgis:db
+   - postgres:postgres
   environment:
     AWS_ACCESS_KEY_ID: {{aws_access_key_id}}
     AWS_SECRET_ACCESS_KEY: {{aws_secret_access_key}}
     AWS_S3_HOST: {{aws_s3_host}}
+    AWS_REGION: "europe"
     BUCKET_NAME: {{aws_s3_bucket}}
-    RENDER_TIMEOUT: "300"
+    RENDER_TIMEOUT: "2000"
     TILE_TIMEOUT: "1800000"
     RABBITMQ_URI: {{rabbitmq_uri}}
+    POSTGRES_DB: openmaptiles
+    POSTGRES_USER: openmaptiles
+    POSTGRES_PASSWORD: openmaptiles
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: 5432

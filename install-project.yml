@@ -1,0 +1,11 @@
+- hosts: all
+  remote_user: me
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: replace docker-compose.yml
+    template: src=docker-compose.yml.j2 dest={{install_dir}}/docker-compose.yml
+  - name: copy tm2source
+    copy: src=data.yml dest={{install_dir}}
